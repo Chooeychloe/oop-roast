@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Bricolage Grotesque", system-ui, sans-serif;
+  --color-night: #17113a;
+  --color-panel: #241a55;
+  --animate-flap: flap 0.22s infinite alternate;
+  --animate-shake: shake 0.5s;
+  --animate-hop: hop 0.5s;
+
+  @keyframes flap { to { transform: rotate(16deg); } }
+  @keyframes shake {
+    20% { transform: translateX(-7px) rotate(-3deg); }
+    40% { transform: translateX(7px) rotate(3deg); }
+    60% { transform: translateX(-5px); }
+    80% { transform: translateX(5px); }
+  }
+  @keyframes hop { 40% { transform: translateY(-14px); } }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
