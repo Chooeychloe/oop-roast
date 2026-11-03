@@ -4,6 +4,10 @@ import { QUESTIONS, ROASTS, ENDINGS, shuffle } from "./data";
 const DEFAULT_SECONDS = 20;
 const MIN_SECONDS = 5;
 const MAX_SECONDS = 300;
+const gradePercent = (score, total) => {
+  const actualPercent = total ? (score / total) * 100 : 0;
+  return ENDINGS.find(([threshold]) => actualPercent >= threshold)?.[0] ?? 0;
+};
 const twoDigits = (n) => String(n).padStart(2, "0");
 const choose = (items) => {
   const index = Math.floor(Math.random() * items.length);
@@ -27,7 +31,7 @@ function Mascot({ mood, talking, tick }) {
   const body = mood === "mad" ? "animate-shake" : mood === "glad" ? "animate-hop" : "";
   const brow = "origin-center [transform-box:fill-box] transition-transform duration-200";
   return (
-    <svg viewBox="0 0 300 270" role="img" aria-label="A talking cartoon kalabaw" className="w-64 overflow-visible">
+    <svg viewBox="0 0 300 270" role="img" aria-label="A talking cartoon kalabaw" className="w-44 shrink-0 overflow-visible sm:w-56 md:w-64">
       <g key={tick} className={body}>
         {/* Tail and hooves */}
         <path d="M45 145C20 153 28 184 14 191M14 191l-7-4m7 4-6 7" fill="none" stroke="#37312d" strokeWidth="5" strokeLinecap="round" />
@@ -62,7 +66,7 @@ function Mascot({ mood, talking, tick }) {
 }
 
 /* ---------- Small UI helpers ---------- */
-const card = "rounded-3xl border-2 border-violet-200 bg-white p-6 dark:border-violet-900 dark:bg-panel";
+const card = "rounded-3xl border-2 border-violet-200 bg-white p-4 sm:p-6 dark:border-violet-900 dark:bg-panel";
 const btn = "rounded-xl bg-violet-600 px-5 py-3 font-bold text-white hover:brightness-110 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-violet-500 disabled:opacity-40 dark:bg-violet-300 dark:text-night";
 const chip = (on) =>
   `rounded-full border-2 px-3 py-1.5 text-sm font-bold transition-colors ${
@@ -83,6 +87,7 @@ export default function App() {
   const [missed, setMissed] = useState([]);
   const [ending, setEnding] = useState("");
   const [left, setLeft] = useState(DEFAULT_SECONDS);
+  const [nextCountdown, setNextCountdown] = useState(5);
   const [line, setLine] = useState("O siya, ready ka na bang araruhin ng OOP?");
   const [mood, setMood] = useState("");
   const [talking, setTalking] = useState(false);
@@ -222,8 +227,8 @@ export default function App() {
 
   const next = () => {
     if (idx + 1 >= deck.length) {
-      const pct = Math.round((score / deck.length) * 100);
-      const [bracket, messages] = ENDINGS.find((e) => pct >= e[0]);
+      const pct = gradePercent(score, deck.length);
+      const [bracket, messages] = ENDINGS.find(([threshold]) => threshold === pct);
       const chosen = choose(messages);
       const finalLine = chosen.text;
       setEnding(finalLine);
@@ -242,13 +247,23 @@ export default function App() {
   useEffect(() => {
     if (screen === "quiz" && cfg.timer && picked === null && left <= 0) answer(-1);
   }, [left]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (screen !== "quiz" || picked === null) return;
+    setNextCountdown(5);
+    const interval = setInterval(() => setNextCountdown((seconds) => Math.max(seconds - 1, 0)), 1000);
+    const timeout = setTimeout(next, 5000);
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+    };
+  }, [screen, picked, idx]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const q = deck[idx];
-  const pct = deck.length ? Math.round((score / deck.length) * 100) : 0;
+  const pct = gradePercent(score, deck.length);
 
   return (
     <div className="flex min-h-screen flex-col bg-violet-50 font-sans text-violet-950 dark:bg-night dark:text-violet-50">
-      <div className="mx-auto grid w-full max-w-5xl flex-1 content-start gap-6 p-5 md:grid-cols-[320px_1fr] md:pt-10">
+      <div className="mx-auto grid w-full max-w-5xl flex-1 content-start gap-5 p-4 sm:gap-6 sm:p-5 md:grid-cols-[380px_1fr] md:pt-10">
         {/* Mascot column */}
         <aside className="flex flex-col items-center gap-3 md:sticky md:top-6 md:self-start">
           <div
@@ -260,26 +275,30 @@ export default function App() {
             <span className={`absolute -bottom-3 left-1/2 -ml-2.5 size-5 rotate-45 border-r-2 border-b-2 bg-white dark:bg-panel
               ${mood === "mad" ? "border-red-500" : mood === "glad" ? "border-emerald-500" : "border-violet-900 dark:border-violet-200"}`} />
           </div>
-          <Mascot mood={mood} talking={talking} tick={tick} />
-          <button className={chip(cfg.voice)} aria-pressed={cfg.voice}
-            title="Plays your public/audio MP3 tracks when present; otherwise uses the device voice."
-            onClick={() => {
-              set({ voice: !cfg.voice });
-              if (cfg.voice) {
-                clearTimeout(talkT.current);
-                audioRef.current?.pause();
-                audioRef.current = null;
-                window.speechSynthesis?.cancel();
-                setTalking(false);
-              }
-            }}>
-            {cfg.voice ? "Voice on" : "Voice off"}
-          </button>
-          {screen === "setup" && (
-            <button className={chip(false)} disabled={!cfg.voice} onClick={() => say("O siya, ready ka na bang araruhin ng OOP?", "", "welcome")}>
-              Hear welcome
+          <div className="flex w-full items-center justify-center gap-1">
+            <div className="flex w-28 shrink-0 flex-col items-center gap-2">
+            <button className={`${chip(cfg.voice)} max-w-full whitespace-normal px-2 text-xs`} aria-pressed={cfg.voice}
+              title="Plays your public/audio MP3 tracks when present; otherwise uses the device voice."
+              onClick={() => {
+                set({ voice: !cfg.voice });
+                if (cfg.voice) {
+                  clearTimeout(talkT.current);
+                  audioRef.current?.pause();
+                  audioRef.current = null;
+                  window.speechSynthesis?.cancel();
+                  setTalking(false);
+                }
+              }}>
+              {cfg.voice ? "Voice on" : "Voice off"}
             </button>
-          )}
+            {screen === "setup" && (
+              <button className={`${chip(false)} max-w-full whitespace-normal px-2 text-xs`} disabled={!cfg.voice} onClick={() => say("O siya, ready ka na bang araruhin ng OOP?", "", "welcome")}>
+                Replay welcome
+              </button>
+            )}
+            </div>
+            <Mascot mood={mood} talking={talking} tick={tick} />
+          </div>
         </aside>
 
         {/* Main column */}
@@ -323,7 +342,10 @@ export default function App() {
               {picked !== null && (
                 <>
                   <p className="mt-4 rounded-r-xl border-l-4 border-violet-500 bg-violet-50 p-3 text-sm dark:bg-night">{q.e}</p>
-                  <button autoFocus className={`${btn} mt-4`} onClick={next}>{idx + 1 >= deck.length ? "See my grade" : "Next question"}</button>
+                  <p aria-live="polite" className="mt-3 text-sm text-violet-700 dark:text-violet-300">
+                    {idx + 1 >= deck.length ? "Your result is ready" : `Next question in ${nextCountdown} ${nextCountdown === 1 ? "second" : "seconds"}`}
+                  </p>
+                  <button autoFocus className={`${btn} mt-2`} onClick={next}>{idx + 1 >= deck.length ? "See my grade" : "Next question"}</button>
                 </>
               )}
             </section>
@@ -331,8 +353,11 @@ export default function App() {
 
           {screen === "end" && (
             <section>
-              <h1 className="text-4xl font-extrabold tracking-tight">Final grade</h1>
-              <p className="my-2 text-6xl font-extrabold tracking-tight">{score} / {deck.length} <span className="text-2xl text-violet-500">({pct}%)</span></p>
+              <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">Final grade</h1>
+              <p className="my-2 flex flex-wrap items-baseline gap-x-3 text-4xl font-extrabold tracking-tight sm:text-6xl"><span>{score} / {deck.length}</span><span className="text-xl text-violet-500 sm:text-2xl">({pct}%)</span></p>
+              <p className="mb-4 text-sm text-violet-700 dark:text-violet-300">
+                The count is your exact number correct. The percentage is a score band, so it may not equal your exact score divided by {deck.length}: below 30% is 0%, 30–54% is 30%, 55–79% is 55%, 80–99% is 80%, and a perfect score is 100%.
+              </p>
               <p className="mb-5 text-violet-700 dark:text-violet-300">{ending}</p>
               {missed.length > 0 && (
                 <details className="mb-5 rounded-2xl border-2 border-violet-200 p-4 dark:border-violet-800">
@@ -349,7 +374,7 @@ export default function App() {
                   </div>
                 </details>
               )}
-              <div className="flex gap-3">
+              <div className="flex flex-wrap gap-3">
                 <button className={btn} onClick={start}>Try again</button>
                 <button className={chip(false)} onClick={() => { setScreen("setup"); say("Back to the lobby, rookie.", "", "setup-return"); }}>Change settings</button>
               </div>
@@ -358,10 +383,23 @@ export default function App() {
         </main>
       </div>
       <footer className="mt-auto w-full border-t border-violet-200/80 bg-white/70 dark:border-violet-900 dark:bg-panel/70">
-        <div className="mx-auto max-w-5xl px-5 py-4 text-center text-sm text-violet-600 dark:text-violet-300">
-          Built for OOP survivors by <span className="font-extrabold text-violet-900 dark:text-white">Sir Dhan</span>
-          <span aria-hidden="true"> | </span>
-          <span>Powered by Java, kalabaw energy, and questionable confidence.</span>
+        <div className="mx-auto flex max-w-5xl flex-col items-center gap-2 px-5 py-4 text-center text-sm text-violet-600 dark:text-violet-300">
+          <p>
+            Built for OOP survivors by <span className="font-extrabold text-violet-900 dark:text-white">Sir Dhan</span>
+            <span aria-hidden="true"> | </span>
+            <span>Powered by Java, kalabaw energy, and questionable confidence.</span>
+          </p>
+          <nav aria-label="Sir Dhan's social profiles" className="flex items-center justify-center gap-2">
+            <a aria-label="GitHub" title="GitHub" className="flex size-11 items-center justify-center rounded-full hover:bg-violet-100 focus-visible:outline-2 focus-visible:outline-offset-2 dark:hover:bg-violet-900" href="https://github.com/Chooeychloe" target="_blank" rel="noreferrer">
+              <svg aria-hidden="true" viewBox="0 0 24 24" className="size-5 fill-current"><path d="M12 .9a11.1 11.1 0 0 0-3.51 21.63c.55.1.76-.24.76-.54v-2.08c-3.1.67-3.75-1.32-3.75-1.32-.5-1.28-1.24-1.62-1.24-1.62-1.02-.7.08-.69.08-.69 1.12.08 1.71 1.15 1.71 1.15 1 .1.97 2.05 3.32 1.55.1-.73.4-1.23.7-1.52-2.47-.28-5.07-1.24-5.07-5.5 0-1.22.44-2.22 1.15-3-.12-.28-.5-1.42.11-2.96 0 0 .94-.3 3.05 1.15a10.6 10.6 0 0 1 5.55 0c2.12-1.44 3.05-1.15 3.05-1.15.61 1.54.23 2.68.11 2.96.72.78 1.15 1.78 1.15 3 0 4.27-2.6 5.21-5.08 5.49.4.35.75 1.02.75 2.06v3.05c0 .3.2.65.77.54A11.1 11.1 0 0 0 12 .9Z" /></svg>
+            </a>
+            <a aria-label="LinkedIn" title="LinkedIn" className="flex size-11 items-center justify-center rounded-full hover:bg-violet-100 focus-visible:outline-2 focus-visible:outline-offset-2 dark:hover:bg-violet-900" href="https://www.linkedin.com/in/dhan-belgica/" target="_blank" rel="noreferrer">
+              <svg aria-hidden="true" viewBox="0 0 24 24" className="size-5 fill-current"><path d="M20.45 2H3.55C2.69 2 2 2.68 2 3.52v16.96c0 .84.69 1.52 1.55 1.52h16.9c.86 0 1.55-.68 1.55-1.52V3.52c0-.84-.69-1.52-1.55-1.52ZM7.93 18.34H4.97V9.02h2.96v9.32ZM6.45 7.75a1.72 1.72 0 1 1 0-3.44 1.72 1.72 0 0 1 0 3.44Zm11.89 10.59h-2.95V13.8c0-1.08-.02-2.46-1.5-2.46-1.5 0-1.73 1.17-1.73 2.38v4.62H9.2V9.02h2.84v1.27h.04c.4-.73 1.36-1.5 2.8-1.5 3 0 3.56 1.97 3.56 4.53v5.02Z" /></svg>
+            </a>
+            <a aria-label="Instagram" title="Instagram" className="flex size-11 items-center justify-center rounded-full hover:bg-violet-100 focus-visible:outline-2 focus-visible:outline-offset-2 dark:hover:bg-violet-900" href="https://www.instagram.com/well_dhan/" target="_blank" rel="noreferrer">
+              <svg aria-hidden="true" viewBox="0 0 24 24" className="size-5 fill-current"><path d="M7.5 2h9A5.5 5.5 0 0 1 22 7.5v9a5.5 5.5 0 0 1-5.5 5.5h-9A5.5 5.5 0 0 1 2 16.5v-9A5.5 5.5 0 0 1 7.5 2Zm0 2A3.5 3.5 0 0 0 4 7.5v9A3.5 3.5 0 0 0 7.5 20h9a3.5 3.5 0 0 0 3.5-3.5v-9A3.5 3.5 0 0 0 16.5 4h-9ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Zm5.25-3.5a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5Z" /></svg>
+            </a>
+          </nav>
         </div>
       </footer>
     </div>
@@ -387,7 +425,7 @@ function Setup({ cfg, set, topics, all, pool, custom, setCustom, start }) {
   return (
     <section className="grid gap-6">
       <div>
-        <h1 className="mb-2 text-4xl font-extrabold leading-none tracking-tight">Kalabaw will judge your OOP.</h1>
+        <h1 className="mb-2 text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl">Kalabaw will judge your OOP.</h1>
         <p className="text-violet-700 dark:text-violet-300">Pick your topics, set the question count, and add your own questions. Kalabaw comes in one setting: savage.</p>
       </div>
 
@@ -403,7 +441,7 @@ function Setup({ cfg, set, topics, all, pool, custom, setCustom, start }) {
       </div>
 
       <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
-        <fieldset className="flex items-center gap-3">
+        <fieldset className="flex flex-wrap items-center gap-2 sm:gap-3">
           <legend className="sr-only">Number of questions</legend>
           <span className="font-bold">Questions</span>
           <button type="button" className={chip(false)} aria-label="Decrease question count"
@@ -420,7 +458,7 @@ function Setup({ cfg, set, topics, all, pool, custom, setCustom, start }) {
           Enable timer
         </label>
         {cfg.timer && (
-          <fieldset className="flex items-center gap-3">
+          <fieldset className="flex flex-wrap items-center gap-2 sm:gap-3">
             <legend className="sr-only">Timer duration per question</legend>
             <span className="font-bold">Time per question</span>
             <button type="button" className={chip(false)} aria-label="Decrease time per question" disabled={secondsPerQuestion <= MIN_SECONDS}
