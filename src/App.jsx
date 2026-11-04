@@ -384,22 +384,17 @@ export default function App() {
         </main>
       </div>
       <footer className="mt-auto w-full border-t border-violet-200/80 bg-white/70 dark:border-violet-900 dark:bg-panel/70">
-        <section aria-labelledby="support-heading" className="border-b border-violet-200/80 px-4 py-4 dark:border-violet-900">
-          <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-3 text-center sm:flex-row sm:text-left">
-            <div>
-              <h2 id="support-heading" className="font-extrabold text-violet-900 dark:text-white">Buy me a coffee</h2>
-              <p className="text-sm text-violet-600 dark:text-violet-300">Enjoying the quiz? Support its development through GCash.</p>
-            </div>
-            <button className={btn} onClick={() => setSupportOpen(true)}>View GCash QR</button>
-          </div>
-        </section>
-        <div className="mx-auto flex max-w-5xl flex-col items-center gap-2 px-5 py-4 text-center text-sm text-violet-600 dark:text-violet-300">
-          <p>
-            Built for OOP survivors by <span className="font-extrabold text-violet-900 dark:text-white">Sir Dhan</span>
-            <span aria-hidden="true"> | </span>
-            <span>Powered by Java, kalabaw energy, and questionable confidence.</span>
-          </p>
-          <nav aria-label="Sir Dhan's social profiles" className="flex items-center justify-center gap-2">
+        <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-5 px-4 py-4 text-center text-sm text-violet-600 dark:text-violet-300 md:flex-row md:text-left">
+          <div className="flex flex-col items-center gap-2 md:items-end">
+            <p>
+              Built for OOP survivors by <span className="font-extrabold text-violet-900 dark:text-white">Sir Dhan</span>
+              <span aria-hidden="true"> | </span>
+              <span>Powered by Java, kalabaw energy, and questionable confidence.</span>
+            </p>
+            <nav aria-label="Sir Dhan's social profiles and support" className="flex flex-wrap items-center justify-center gap-2">
+            <button className={`${chip(false)} whitespace-nowrap`} aria-haspopup="dialog" onClick={() => setSupportOpen(true)}>
+              ☕ Buy me a coffee
+            </button>
             <a aria-label="GitHub" title="GitHub" className="flex size-11 items-center justify-center rounded-full hover:bg-violet-100 focus-visible:outline-2 focus-visible:outline-offset-2 dark:hover:bg-violet-900" href="https://github.com/Chooeychloe" target="_blank" rel="noreferrer">
               <svg aria-hidden="true" viewBox="0 0 24 24" className="size-5 fill-current"><path d="M12 .9a11.1 11.1 0 0 0-3.51 21.63c.55.1.76-.24.76-.54v-2.08c-3.1.67-3.75-1.32-3.75-1.32-.5-1.28-1.24-1.62-1.24-1.62-1.02-.7.08-.69.08-.69 1.12.08 1.71 1.15 1.71 1.15 1 .1.97 2.05 3.32 1.55.1-.73.4-1.23.7-1.52-2.47-.28-5.07-1.24-5.07-5.5 0-1.22.44-2.22 1.15-3-.12-.28-.5-1.42.11-2.96 0 0 .94-.3 3.05 1.15a10.6 10.6 0 0 1 5.55 0c2.12-1.44 3.05-1.15 3.05-1.15.61 1.54.23 2.68.11 2.96.72.78 1.15 1.78 1.15 3 0 4.27-2.6 5.21-5.08 5.49.4.35.75 1.02.75 2.06v3.05c0 .3.2.65.77.54A11.1 11.1 0 0 0 12 .9Z" /></svg>
             </a>
@@ -409,7 +404,8 @@ export default function App() {
             <a aria-label="Instagram" title="Instagram" className="flex size-11 items-center justify-center rounded-full hover:bg-violet-100 focus-visible:outline-2 focus-visible:outline-offset-2 dark:hover:bg-violet-900" href="https://www.instagram.com/well_dhan/" target="_blank" rel="noreferrer">
               <svg aria-hidden="true" viewBox="0 0 24 24" className="size-5 fill-current"><path d="M7.5 2h9A5.5 5.5 0 0 1 22 7.5v9a5.5 5.5 0 0 1-5.5 5.5h-9A5.5 5.5 0 0 1 2 16.5v-9A5.5 5.5 0 0 1 7.5 2Zm0 2A3.5 3.5 0 0 0 4 7.5v9A3.5 3.5 0 0 0 7.5 20h9a3.5 3.5 0 0 0 3.5-3.5v-9A3.5 3.5 0 0 0 16.5 4h-9ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Zm5.25-3.5a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5Z" /></svg>
             </a>
-          </nav>
+            </nav>
+          </div>
         </div>
       </footer>
       {supportOpen && (
