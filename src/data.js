@@ -296,7 +296,7 @@ export const ROASTS = {
     timeout: [
       "TIME'S UP! Mas mabilis pa mag-load ang CvSU portal kaysa sa decision-making mo.",
       "Beh, tapos na ang timer. Hindi ito thesis na puwedeng i-extend dahil hindi ka ready.",
-      "Twenty seconds na, wala pa rin? Nag-hang ba yung brain mo?",
+      "Wala pa rin? Nag-hang ba yung brain mo?",
       "Timeout! Pati deadline hindi ka na hinintay. Relate much?",
       "Ang tagal mong sumagot, akala ko nagre-research ka. Nag-iisip ka lang pala kung manghuhula ka.",
       "Time's up. Your brain requested an extension, but the system rejected it.",
