@@ -86,6 +86,7 @@ export default function App() {
   const [streak, setStreak] = useState({ good: 0, bad: 0 });
   const [missed, setMissed] = useState([]);
   const [ending, setEnding] = useState("");
+  const [supportOpen, setSupportOpen] = useState(false);
   const [left, setLeft] = useState(DEFAULT_SECONDS);
   const [nextCountdown, setNextCountdown] = useState(5);
   const [line, setLine] = useState("O siya, ready ka na bang araruhin ng OOP?");
@@ -383,6 +384,15 @@ export default function App() {
         </main>
       </div>
       <footer className="mt-auto w-full border-t border-violet-200/80 bg-white/70 dark:border-violet-900 dark:bg-panel/70">
+        <section aria-labelledby="support-heading" className="border-b border-violet-200/80 px-4 py-4 dark:border-violet-900">
+          <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-3 text-center sm:flex-row sm:text-left">
+            <div>
+              <h2 id="support-heading" className="font-extrabold text-violet-900 dark:text-white">Buy me a coffee</h2>
+              <p className="text-sm text-violet-600 dark:text-violet-300">Enjoying the quiz? Support its development through GCash.</p>
+            </div>
+            <button className={btn} onClick={() => setSupportOpen(true)}>View GCash QR</button>
+          </div>
+        </section>
         <div className="mx-auto flex max-w-5xl flex-col items-center gap-2 px-5 py-4 text-center text-sm text-violet-600 dark:text-violet-300">
           <p>
             Built for OOP survivors by <span className="font-extrabold text-violet-900 dark:text-white">Sir Dhan</span>
@@ -402,6 +412,20 @@ export default function App() {
           </nav>
         </div>
       </footer>
+      {supportOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={() => setSupportOpen(false)}>
+          <section role="dialog" aria-modal="true" aria-labelledby="gcash-dialog-title"
+            className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-3xl bg-white p-5 text-center text-violet-950 shadow-2xl dark:bg-panel dark:text-violet-50"
+            onClick={(event) => event.stopPropagation()}>
+            <div className="mb-2 flex items-center justify-between gap-3 text-left">
+              <h2 id="gcash-dialog-title" className="text-xl font-extrabold">Buy me a coffee</h2>
+              <button className={chip(false)} aria-label="Close GCash QR" onClick={() => setSupportOpen(false)}>Close</button>
+            </div>
+            <p className="mb-3 text-sm text-violet-700 dark:text-violet-300">Scan this GCash QR code to support the project.</p>
+            <img src="./gcash-qr.jpg" alt="GCash payment QR code for Sir Dhan" className="mx-auto max-h-[68vh] w-auto max-w-full rounded-xl object-contain" />
+          </section>
+        </div>
+      )}
     </div>
   );
 }
