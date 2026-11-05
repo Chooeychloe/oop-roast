@@ -149,7 +149,7 @@ const RAW_QUESTIONS = [
   {"topic": "Module 1 – Java Fundamentals", "q": "Which Scanner method in java.util is specifically used to read a full line of text including spaces?", "o": ["nextLine()", "next()", "nextInt()", "readString()"], "a": 0, "e": "nextLine() reads all characters up to the next newline character, including spaces."},
   {"topic": "Module 2 – Methods & Objects", "q": "Why is return type alone insufficient for overloading a method in Java?", "o": ["Because the compiler cannot determine which method to invoke based solely on return type without parameter differences", "Because return types are ignored by the JVM", "Because methods with return types must always be static", "Because overriding requires different return types"], "a": 0, "e": "Method overloading requires different parameter lists (count, type, or order). Overloading by return type alone causes a compile-time ambiguity."},
   {"topic": "Module 2 – Methods & Objects", "q": "Where do actual object instances and their instance fields reside in Java memory?", "o": ["Heap memory", "Stack memory", "Method area only", "Register memory"], "a": 0, "e": "In Java's memory model, local reference variables reside on the Stack, while the actual object instances live on the Heap."},
-  {"topic": "Module 2 – Methods & Objects", "q": "What happens when you perform string concatenation using s.concat(' text') on an existing String s without reassigning?", "o": ["The operation returns a new String object and leaves s unchanged because Strings are immutable", "s is modified in place", "A NullPointerException is thrown", "The original String memory is freed by garbage collection immediately"], "a": 0, "e": "Strings in Java are immutable. String operations return a new String object and do not alter the original string unless reassigned."},
+  {"topic": "Module 2 – Methods & Objects", "q": "What happens when you perform string concatenation using s.concat(\" text\") on an existing String s without reassigning?", "o": ["The operation returns a new String object and leaves s unchanged because Strings are immutable", "s is modified in place", "A NullPointerException is thrown", "The original String memory is freed by garbage collection immediately"], "a": 0, "e": "Strings in Java are immutable. String operations return a new String object and do not alter the original string unless reassigned."},
   {"topic": "Module 2 – Methods & Objects", "q": "Inside a constructor, what does calling this(...) do?", "o": ["Invokes another overloaded constructor in the same class and must be the first statement", "Calls the superclass constructor", "Instantiates a new child object", "Resets all instance variables to null"], "a": 0, "e": "this(...) calls another constructor within the same class to reduce duplicate initialization logic, and it must appear as the very first statement."},
   {"topic": "Module 3 – Core OOP", "q": "Which access modifier allows access within the same package AND by subclasses in different packages?", "o": ["protected", "private", "default (package-private)", "public"], "a": 0, "e": "protected members are accessible to all classes in the same package and to subclasses located in other packages."},
   {"topic": "Module 3 – Core OOP", "q": "What visibility is assigned to a class member if no explicit access modifier keyword is written?", "o": ["Default / Package-Private", "private", "protected", "public"], "a": 0, "e": "Omitting an access modifier automatically assigns default (package-private) visibility, restricting access to the same package."},
@@ -207,6 +207,87 @@ const MODULE_TOPICS = [
   "Module 5: Design Principles",
 ];
 
+const REDUNDANT_PROMPTS = new Set([
+  "What does the `this` keyword usually refer to?",
+  "What is an object?",
+  "Which design is usually easier to extend without changing existing callers?",
+  "When is composition a good alternative to inheritance?",
+  "Why use try-with-resources when reading a file?",
+  "A class changes for unrelated reasons because it handles billing and report formatting. Which principle is most directly violated?",
+  "Why should you avoid using inheritance just to reuse a few methods?",
+  "Why is return type alone insufficient for overloading a method in Java?",
+  "Which access modifier allows access within the same package AND by subclasses in different packages?",
+  "Are constructors in Java inherited by subclasses or dynamically overridden?",
+  "What is the primary benefit of using a try-with-resources statement when handling file streams?",
+  "Which of the following represents valid Java 8+ syntax for a lambda expression?",
+  "Which SOLID principle states that high-level modules should depend on abstractions rather than concrete low-level implementations?",
+  "What is the core definition and requirement of software refactoring?",
+  "What is the key distinction between parameters and arguments in Java methods?",
+  "What is the effect of using this(...) inside a constructor?",
+  "Why is the @Override annotation strongly recommended when overriding superclass methods?",
+  "What is dynamic binding (late binding) in Java?",
+  "Which parent class distinguishes checked exceptions from unchecked exceptions in Java?",
+  "What does the transient keyword do when applied to a class field during serialization?",
+  "Which SOLID principle is violated if a Customer class calculates discounts, saves to MySQL, and prints receipts?",
+  "How does the Open/Closed Principle (OCP) improve system design?",
+  "How does Dependency Inversion Principle (DIP) decouple high-level and low-level modules?",
+  "What is the core rule of software refactoring?",
+  "A static field belongs to:",
+]);
+
+const ADDITIONAL_QUESTIONS = [
+  { topic: MODULE_TOPICS[1], q: "A cashier program must display a price with exactly two decimal places. Which format string should it use?", o: ["printf with %.2f", "printf with %2d", "println with %f2", "Scanner with %.2f"], a: 0, e: "The %.2f format specifier displays a floating-point value with exactly two digits after the decimal point." },
+  { topic: MODULE_TOPICS[1], q: "A menu accepts choices from 1 to 4. What should the program do when the user enters 9?", o: ["Show an invalid-choice message", "Treat 9 as the first menu choice", "Restart the program without a message", "Convert 9 into a valid choice"], a: 0, e: "Validate input and report invalid choices so the user can try again." },
+  { topic: MODULE_TOPICS[2], q: "A method calculates a total from an array and does not need to change object state. Which return type fits a decimal total?", o: ["double", "boolean", "void", "String"], a: 0, e: "A double return type can represent a calculated decimal total; the method can return it to its caller." },
+  { topic: MODULE_TOPICS[2], q: "A report method receives a list of scores and must return their sum. What should it do with the result?", o: ["Return the sum to its caller", "Store the sum in a global field", "Print it and return nothing", "Change each score in the list"], a: 0, e: "Returning the calculated value lets the caller decide whether to display, store, or use the sum." },
+  { topic: MODULE_TOPICS[3], q: "A checkout holds a Payment reference that may point to CardPayment or WalletPayment. Both override pay(). Which implementation runs?", o: ["The override on the actual payment object runs", "The method on the declared reference type runs", "The first override alphabetically in source code runs", "Both overrides run in the order they were declared"], a: 0, e: "Runtime polymorphism uses the object's actual class to select the overridden instance method." },
+  { topic: MODULE_TOPICS[3], q: "A BankAccount must reject withdrawals larger than its balance. Where should that rule be enforced?", o: ["Inside withdraw before updating balance", "In every screen that calls withdraw", "Only in the program's main method", "Inside toString after the balance changes"], a: 0, e: "The account should protect its own state by validating each withdrawal before changing the balance." },
+  { topic: MODULE_TOPICS[4], q: "A course catalog needs unique course codes and frequent membership checks. Which collection is a good fit?", o: ["HashSet for unique codes", "ArrayList for unique codes", "HashMap for unique codes", "LinkedList for unique codes"], a: 0, e: "A HashSet stores unique elements and supports efficient membership checks." },
+  { topic: MODULE_TOPICS[4], q: "A task scheduler frequently adds and removes tasks at both ends of a sequence. Which collection interface fits best?", o: ["Deque for both ends", "Map for both ends", "Set for both ends", "Queue for indexed access"], a: 0, e: "Deque supports insertion and removal at both the head and tail of a sequence." },
+  { topic: MODULE_TOPICS[5], q: "An invoice class calculates totals, saves files, and sends email. What change best follows the Single Responsibility Principle?", o: ["Split billing, storage, and email into focused classes", "Create an invoice subclass for each output file format", "Move billing, storage, and email into static methods", "Add separate public methods for each invoice operation"], a: 0, e: "Separating calculation, persistence, and messaging gives each class a focused responsibility." },
+  { topic: MODULE_TOPICS[5], q: "An alert service should support email now and SMS later without rewriting its alert logic. What design helps?", o: ["Inject a notification interface with implementations", "Add an if statement for each service", "Put both services in one concrete class", "Make the alert service inherit from each sender"], a: 0, e: "Depending on an injected abstraction lets new notification implementations work with the existing alert logic." },
+];
+
+const OPTION_REVISIONS = new Map([
+  ["The Singleton pattern ensures:", ["One instance with a shared access point", "A different instance for every method", "One method with several parameter lists", "Objects cannot be constructed by any class"]],
+  ["The Liskov Substitution Principle says:", ["Subtypes should work wherever their parent type is expected", "Subclasses should always add more public methods", "Every parent class should be replaced by an interface", "Objects should never share a common superclass"]],
+  ["What is the main purpose of an interface?", ["Define a contract that implementing classes follow", "Store each object's fields in a shared location", "Create objects without invoking any constructor", "Prevent subclasses from replacing method behavior"]],
+  ["Abstraction is mainly about:", ["Showing essential behavior while hiding implementation details", "Exposing every field while hiding the object's methods", "Copying object state while keeping classes separate", "Stopping related classes from calling one another"]],
+  ["A field marked private is best accessed from outside its class through:", ["A getter or another controlled public method", "An external reference that reads the field directly", "A cast to the object's parent class", "A garbage collector call that exposes the field"]],
+  ["What does overriding require?", ["An inherited method with a compatible signature", "A new method name with the same return type", "A static method replacing an instance method", "A private parent method with matching code"]],
+  ["Can a Java class extend two classes at the same time?", ["No; Java allows one direct superclass", "Yes; Java allows two direct superclasses", "No; Java classes cannot extend other classes", "Yes; Java allows several concrete superclasses"]],
+  ["Are constructors inherited or overridden in Java?", ["Neither; subclasses declare their own constructors", "Inherited, but never overridden by subclasses", "Overridden, but never inherited by subclasses", "Only default constructors are inherited"]],
+  ["Why should fields usually be declared private?", ["To control access and protect valid object state", "To prevent every method from reading the field", "To make each object share one field value", "To let subclasses access it without methods"]],
+  ["What is upcasting?", ["Treating a subclass object as its superclass type", "Treating a superclass object as a subclass instance", "Converting an object into an unrelated class type", "Copying a subclass object into a separate superclass"]],
+  ["What happens when a concrete class implements an interface but does not implement all required abstract methods?", ["It must be abstract or implement every required method", "The JVM supplies the missing methods when the class runs", "The Object class provides all missing methods automatically", "The compiler converts missing methods into default methods"]],
+  ["What is aggregation?", ["A has-a relationship where parts can live independently", "A has-a relationship where parts share the owner's lifecycle", "An is-a relationship between a parent and its child", "A uses-a relationship for one temporary method call"]],
+  ["What does the @Override annotation do?", ["Asks the compiler to verify an inherited method is overridden", "Asks the compiler to generate a method from its name", "Lets subclasses override private and static parent methods", "Marks a method to run before object construction begins"]],
+  ["What is the difference between post-increment (x++) and pre-increment (++x) in Java expressions?", ["x++ uses the old value first; ++x uses the new value", "x++ adds two first; ++x adds one first", "x++ works on decimals; ++x works on whole numbers", "x++ applies to fields; ++x applies to local variables"]],
+  ["What happens when you perform string concatenation using s.concat(\" text\") on an existing String s without reassigning?", ["The original String stays unchanged; concat returns a new String", "The original String changes and concat returns the same String", "The original String is deleted and replaced with null", "The original String is converted into a character array"]],
+  ["Inside a constructor, what does calling this(...) do?", ["Calls another constructor in this class as its first statement", "Calls a method in the superclass after fields are set", "Creates another instance and copies its field values", "Calls a static method before the object is allocated"]],
+  ["What distinguishes a checked exception from an unchecked exception in Java?", ["Checked exceptions must be caught or declared; unchecked exceptions need not", "Checked exceptions occur only at runtime; unchecked ones occur at compile time", "Checked exceptions extend Error; unchecked ones extend Object", "Checked exceptions stop the JVM; unchecked ones close the current method"]],
+  ["What happens to a field marked with the transient keyword during object serialization?", ["Serialization skips the field and restores its default value", "Serialization encrypts the field and restores its original value", "Serialization moves the field into a separate output file", "Serialization shares the field across every class instance"]],
+  ["Why is creating a custom Stack class that extends ArrayList considered a violation of good design?", ["A stack should not expose list operations that break its rules", "An ArrayList cannot store items in last-in-first-out order", "Java prevents collection classes from being extended", "A stack must store every item as a key-value pair"]],
+  ["Which statement regarding Java identifiers is correct?", ["Start with a letter, $, or _, and avoid reserved keywords", "Start with a digit, $, or _, and avoid reserved keywords", "Start with any symbol, but never contain a number", "Ignore capitalization, but never contain an underscore"]],
+  ["When multiple catch blocks are present, how must they be ordered?", ["Put specific exception types before their general parent types", "Put general exception types before their specific child types", "Order exception types by name from A to Z", "Place runtime exceptions after every checked exception"]],
+  ["How does try-with-resources ensure stream safety?", ["It closes each AutoCloseable resource when the try block exits", "It reopens each AutoCloseable resource when the try block exits", "It catches every exception raised inside the try block", "It prevents other methods from accessing the open resource"]],
+  ["What is the difference between composition and aggregation in UML?", ["Composition gives strong ownership; aggregation lets parts live independently", "Aggregation gives strong ownership; composition lets parts outlive the whole", "Both describe inheritance between related classes", "Composition uses interfaces; aggregation stores fields on the parent"]],
+  ["What type of relationship is modeled by an interface versus an abstract class?", ["Abstract classes may share state; interfaces define capabilities", "Interfaces may share state; abstract classes define capabilities", "Both types can be instantiated without concrete subclasses", "Neither type can declare behavior for subclasses"]],
+  ["What is a default constructor?", ["A compiler-supplied no-argument constructor when none is declared", "A constructor every subclass automatically inherits from its parent", "A constructor that returns a default object from each method", "A constructor that runs only when all class fields are static"]],
+  ["What must a non-void Java method do on every valid path?", ["Return a value matching its declared type on every valid path", "Print a value matching its declared type on every valid path", "Declare a static field before each return path completes", "Call another method before each path can finish running"]],
+  ["What does the DRY (Don't Repeat Yourself) principle aim to eliminate?", ["Duplicated logic or repeated knowledge in the codebase", "Comments and blank lines throughout the codebase", "Every helper method that appears in the codebase", "Parameters that repeat a data type in the codebase"]],
+  ["Why can't method overloading be based solely on different return types?", ["Calls would be ambiguous when parameter lists match", "Calls would be ambiguous when method names differ", "Return values cannot be used inside expressions", "Methods must be static before they can be overloaded"]],
+  ["What is the goal of refactoring?", ["Improve internal code while preserving external behavior", "Add a new feature while preserving the old class names", "Replace all interfaces while preserving the package names", "Rewrite a program while preserving its comments and spacing"]],
+  ["What is the purpose of the toString() method?", ["Return a readable text representation of an object", "Return a unique integer representation of an object", "Compare the state and identity of two objects", "Create a copy with the same fields as an object"]],
+  ["What is loose coupling?", ["Components rely less on each other's internal details", "Components share more of each other's internal details", "Components place all their methods in one class", "Components use only static fields to share their state"]],
+  ["Which design is a KISS violation?", ["Adding unnecessary layers to solve a simple task", "Using a small method to solve one clear task", "Choosing the simplest design that meets the need", "Removing steps that no longer help the user"]],
+  ["Can a static method be overridden in the same way as an instance method?", ["No; a subclass hides a static method with its own", "Yes; a subclass overrides it using the same signature", "Yes; a subclass overrides it only with a new return type", "No; static methods cannot be declared in subclasses"]],
+  ["What is a constructor for?", ["Initialize an object's starting state", "Release an object's resources before deletion", "Copy the class definition into every object", "Declare shared methods for every class instance"]],
+  ["Why can deep inheritance hierarchies become painful?", ["Base changes can affect behavior across many subclasses", "Base classes cannot contain fields used by subclasses", "Subclasses cannot override methods from distant parents", "Inheritance prevents objects from being created at runtime"]],
+  ["What is the difference between a class and an object?", ["A class is a blueprint; an object is an instance", "A class is an instance; an object is its blueprint", "A class stores methods; an object stores only fields", "A class is created at runtime; an object is compiled first"]],
+  ["What is a setter method commonly used for?", ["Update a field while validating the new value", "Read a field without changing its current value", "Create an instance from the class definition", "Share one field value across all class instances"]],
+]);
+
 function categorizeTopic(question) {
   const moduleNumber = question.topic.match(/^Module\s+([1-5])(?:\s|[–-])/);
   if (moduleNumber) return MODULE_TOPICS[Number(moduleNumber[1])];
@@ -229,10 +310,13 @@ function categorizeTopic(question) {
 }
 
 // Merge older fine-grained labels and spelling variants into the five module topics.
-export const QUESTIONS = RAW_QUESTIONS.map((question) => ({
-  ...question,
-  topic: categorizeTopic(question),
-}));
+export const QUESTIONS = [...RAW_QUESTIONS, ...ADDITIONAL_QUESTIONS]
+  .filter((question) => !REDUNDANT_PROMPTS.has(question.q))
+  .map((question) => ({
+    ...question,
+    o: OPTION_REVISIONS.get(question.q) ?? question.o,
+    topic: categorizeTopic(question),
+  }));
 
 export const ROASTS = {
   savage: {
