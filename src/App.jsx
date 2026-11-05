@@ -9,9 +9,22 @@ const gradePercent = (score, total) => {
   return ENDINGS.find(([threshold]) => actualPercent >= threshold)?.[0] ?? 0;
 };
 const twoDigits = (n) => String(n).padStart(2, "0");
+const choiceBags = new WeakMap();
+const lastChoiceByPool = new WeakMap();
 const choose = (items) => {
-  const index = Math.floor(Math.random() * items.length);
-  return { text: items[index], index: index + 1 };
+  let bag = choiceBags.get(items);
+  if (!bag?.length) {
+    bag = shuffle(items.map((text, index) => ({ text, index })));
+    const lastIndex = lastChoiceByPool.get(items);
+    if (bag.length > 1 && bag[bag.length - 1].index === lastIndex) {
+      [bag[0], bag[bag.length - 1]] = [bag[bag.length - 1], bag[0]];
+    }
+    choiceBags.set(items, bag);
+  }
+
+  const choice = bag.pop();
+  lastChoiceByPool.set(items, choice.index);
+  return { text: choice.text, index: choice.index + 1 };
 };
 
 function useLocalStorage(key, init) {
